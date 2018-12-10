@@ -1,0 +1,42 @@
+{
+  "name": "scrollAnimate",
+  "title": "ScrollAnimate",
+  "version": "1.0.0",
+  "main": "src/ScrollAnimate/scrollAnimate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "scroll",
+    "scrolling",
+    "animations",
+    "animate",
+    "scrollbar",
+    "library",
+    "ES6",
+    "Pure JavaScript"
+  ],
+  "author": {
+    "name": "Hammer Garita",
+    "url": "https://www.hgarita.com"
+  },
+  "license": "(MIT OR GPL-3.0+)",
+  "description": "The javascript library for scroll animations.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/HammerGarita/ScrollMagic.git"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "@babel/register": "^7.0.0",
+    "browser-sync": "^2.26.3",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-pug": "^4.0.1",
+    "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-uglify": "^3.0.1"
+  }
+}
