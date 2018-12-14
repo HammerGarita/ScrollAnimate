@@ -13,7 +13,7 @@ gulp.task('serve', ['sass', 'pug'], () =>
     server: './example/'
   }),
 
-gulp.watch('./src/example/scss/**/*.scss', ['scss']),
+gulp.watch('./src/example/scss/**/*.scss', ['sass']),
 gulp.watch('./src/example/pug/*.pug', ['pug']).on('change', browserSync.reload),
 gulp.watch('./src/ScrollAnimate/scrollAnimate.js', ['babel']).on('change', browserSync.reload)
 )
@@ -55,3 +55,5 @@ gulp.task('pug', () => {
 })
 
 gulp.task('default', ['serve'])
+
+//npm install --save-dev gulp gulp-babel @babel/core @babel/preset-env gulp-autoprefixer gulp-pug gulp-rename gulp-sas gulp-uglify browser-sync 
