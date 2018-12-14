@@ -56,4 +56,4 @@ gulp.task('pug', () => {
 
 gulp.task('default', ['serve'])
 
-//npm install --save-dev gulp gulp-babel @babel/core @babel/preset-env gulp-autoprefixer gulp-pug gulp-rename gulp-sas gulp-uglify browser-sync 
+//npm install --save-dev gulp gulp-babel @babel/core @babel/preset-env gulp-autoprefixer gulp-pug gulp-rename gulp-sass gulp-uglify browser-sync 
