@@ -65,6 +65,8 @@
     let _elementPosition
     let _positionElementDisplayed
 
+    let _globalContainer
+
     /*
      * ----------------------------------------------------------------
      * private functions
@@ -190,15 +192,13 @@
         if (_delay) _selectedItem.style.animationDelay = (_delay / 1000) + 's'
         if (_iterationCount) _selectedItem.style.animationIterationCount = _iterationCount
         // Verifica si los elementos están dentro del espacio visible de la pantalla dependiendo el scroll
-        switch (_scroll) {
-          case 'vertical':
-            _elementPosition.top <= (window.innerHeight || document.documentElement.clientHeight)
-              ? _selectedItem.classList.add(_animationClassName)
-              : _selectedItem.style.visibility = 'hidden'
-            break
-
-          case 'horizontal':
-            break
+        if ((_scroll === 'vertical' && _elementPosition.top <= (window.innerHeight || document.documentElement.clientHeight)) ||
+            (_scroll === 'horizontal' && _elementPosition.left <= (window.innerWidth || document.documentElement.clientWidth))) {
+          // Si esta en el ViewPort le agrega la calas de animacion
+          _selectedItem.classList.add(_animationClassName)
+        } else {
+          // Si no esta en el ViewPort oculta el elemento
+          _selectedItem.style.visibility = 'hidden'
         }
       })
     }
@@ -208,35 +208,32 @@
      * Animaciones en Scroll Vertical
      *----------------------------------------------------------------
      */
-    let scrollVertical = () => {
-      window.addEventListener('scroll', () => {
+    let initAnimations = () => {
+      _scroll === 'vertical' ? _globalContainer = window : _globalContainer = document.querySelector('.scroll-horizontal-container')
+      _globalContainer.addEventListener('scroll', () => {
         Array.from(_elementObject).forEach((_selectedItem) => {
           // Obtiene las coordenadas del elemento
           _elementPosition = _selectedItem.getBoundingClientRect()
           // Calcula la posición del elemento en relacion al offset
-          _positionElementDisplayed = _elementPosition.top + (_selectedItem.offsetHeight * _offset)
+          _scroll === 'vertical'
+            ? _positionElementDisplayed = _elementPosition.top + (_selectedItem.offsetHeight * _offset)
+            : _positionElementDisplayed = _elementPosition.left + (_selectedItem.offsetWidth * _offset)
           // Verifica que se encuentre dentro del espacio visible de la ventana
-          if (_positionElementDisplayed <= (window.innerHeight || document.documentElement.clientHeight)) {
+          if ((_scroll === 'vertical' && _positionElementDisplayed <= (window.innerHeight || document.documentElement.clientHeight)) ||
+              (_scroll === 'horizontal' && _positionElementDisplayed <= (window.innerWidth || document.documentElement.clientWidth))) {
             // console.log('In the viewport!')
             _selectedItem.style.visibility = 'visible'
             _selectedItem.classList.add(_animationClassName)
           } else {
             // console.log('Not in the viewport...')
-            if (!_triggerOnce && _elementPosition.top >= window.innerHeight) {
+            if ((!_triggerOnce && _elementPosition.top >= window.innerHeight && _scroll === 'vertical') ||
+                (!_triggerOnce && _elementPosition.left >= window.innerWidth && _scroll === 'horizontal')) {
               _selectedItem.style.visibility = 'hidden'
               _selectedItem.classList.remove(_animationClassName)
             }
           }
         })
       })
-    }
-    /*
-     * ----------------------------------------------------------------
-     * Animaciones en Scroll Horizontal
-     *----------------------------------------------------------------
-     */
-    let scrollHorizontal = () => {
-      console.log('horizontal')
     }
 
     /*
@@ -255,7 +252,7 @@
           console.log('SocrollAnimate: Animaciones desactivadas para este dispositivo')
         } else {
           initialSetup(_elementObject)
-          _scroll === 'vertical' ? scrollVertical() : scrollHorizontal()
+          initAnimations()
         }
       }
     }
