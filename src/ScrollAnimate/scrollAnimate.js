@@ -24,25 +24,15 @@
   let ScrollAnimate = {}
   /*
     * @usage
-    * scrollAnimate.add(object)
+    * - Inicializar Scroll Animate
+    * scrollAnimate.init()
+    * - Inicializar Scroll Animate con @parametros
+    * scrollAnimate.init({
+    *   scroll: 'vertical',
+    *   disabled: ['mobile']
+    * })
     */
-  ScrollAnimate.add = (parametersObject) => {
-    /*
-      * // passing options
-      * scrollAnimate.add({
-      *   selector: '.element',
-      *   animationClassName: 'fadeInLeft',
-      *   scroll: 'vertical',
-      *   offset: '50%',
-      *   triggerOnce: true,
-      *   disabled: ['mobile'],
-      *   delay: '1s',
-      *   duration: '4s',
-      *   iteration-count: '1'
-      * })
-      *
-      */
-
+  ScrollAnimate.init = (parametersObject) => {
     /*
       * ----------------------------------------------------------------
       * Private vars
@@ -50,13 +40,11 @@
       */
     let _elementObject
     let _animationClassName
-    let _offset
-    let _scroll
-    let _triggerOnce
-    let _disabled = true
-    let _delay
-    let _duration
-    let _iterationCount
+    let _offset = '10%'
+    let _scroll = 'vertical'
+    let _triggerOnce = true
+    let _disabled = false
+    let _hidde = false
 
     let _mobile
     let _tablet
@@ -73,106 +61,41 @@
      * ----------------------------------------------------------------
      */
 
-    // Valida las propiedades de Duration, Delay
-    let validateAnimationPropertys = (propertyName, propertyValue) => {
-      let _variable
-      // Verifica que se haya definido la propiedad
-      if (propertyValue) {
-        // Compara que contenga un numero entero
-        isNaN(propertyValue) || propertyValue % 1 !== 0 ? (function () { throw new TypeError(`{${propertyName}: '${propertyValue}'} contiene un valor no valido.`) }())
-          : _variable = propertyValue
-      }
-      return _variable
-    }
-
     /*
-     * // Valida propiedades del Objeto (parameters)
+     * Valida las propiedades enviadas en el Objeto (parameters)
+     * Propiedades aceptadas:
+     * - scroll: 'horizontal' o 'vertical'
+     * - disabled: ['mobile', 'tablet', 'desktop']
      */
     let validateParametersObject = (parameters) => {
-      // Valida que parameters sea un objeto
-      if (parameters instanceof Object && typeof parameters !== 'function') {
-        /*
-         * Valida que de haya definido la propiedad selector
-         */
-        if (parameters.selector) {
-          // Obtiene los elementos del DOM
-          _elementObject = document.querySelectorAll(parameters.selector)
-          // Si no se encontraron elementos envia un error
-          if (_elementObject === null || _elementObject.length === 0) (function () { throw new Error(`No se encontro el elemento "${parameters.selector}"`) }())
-          //
-        } else { throw new Error('Se requiere la propiedad {selector:}') }
+      // Verifica que @parameters sea un Objeto, que no sea una función y que tenga propiedades
+      if (parameters instanceof Object && typeof parameters !== 'function' && Object.keys(parameters).length !== 0) {
+        // - Inicializa la validación de propiedades
 
-        /*
-         * Valida que animationClassName no este vacio y sea un String
-         */
-        parameters.animationClassName !== 'undefined' && typeof parameters.animationClassName === 'string'
-          ? _animationClassName = parameters.animationClassName
-          : (function () { throw new TypeError(`{animationClassName: '${parameters.animationClassName}'} contiene un valor no valido o no se definio.`) }())
-
-        /*
-         * Valida si se definio la propiedad offset
-         */
-        if (parameters.offset) {
-          _offset = parseFloat(parameters.offset)
-          // Comprueba que sea un valor valido
-          isNaN(_offset) || (_offset - Math.floor(_offset)) !== 0
-            ? (function () { throw new TypeError(`{offset: '${parameters.offset}'} contiene un valor no valido.`) }())
-            : _offset /= 100.0
-          // Si no se definio Offset le asigna un valor de 10% por defecto
-        } else { _offset = '.10' }
-
-        /*
-         * Valida si se definio la propiedad scroll
-         */
+        // Comprueba si se definio la propiedad scroll
         if (parameters.scroll) {
-          // Comprueba que sea un valor valido
+          // Comprueba que scroll contenga un valor valido
           parameters.scroll === 'horizontal' || parameters.scroll === 'vertical'
             ? _scroll = parameters.scroll
             : (function () { throw new TypeError(`{scroll: '${parameters.scroll}'} contiene un valor no valido.`) }())
-          // Si no se definio scroll le asigna un valor de 'Vertical' por defecto
-        } else { _scroll = 'vertical' }
+        }
 
-        /*
-         * Valida si se definio la propiedad triggerOnce
-         */
-        if (parameters.triggerOnce !== 'undefined') {
-          typeof parameters.triggerOnce === 'boolean' ? _triggerOnce = parameters.triggerOnce
-            : (function () { throw new TypeError(`{triggerOnce: '${parameters.triggerOnce}'} contiene un valor no valido.`) }())
-          // Si no se definio triggerOnce le asigna un valor de true por defecto
-        } else { _triggerOnce = true }
-
-        /*
-         * Valida si se definio la propiedad disabled
-         */
+        // Comprueba si se definio la propiedad disabled y asigna true a los elementos que se hayan indicado
         if (parameters.disabled) {
+          _disabled = true
           parameters.disabled.forEach((_device) => {
             if (_device === 'desktop') _desktop = true
             if (_device === 'tablet') _tablet = true
             if (_device === 'mobile') _mobile = true
           })
-          // Si no se definio disabled le asigna un valor de false por defecto
-        } else { _disabled = false }
+        }
 
-        /*
-         * Valida si se definio la propiedad delay
-         */
-        _delay = validateAnimationPropertys('delay', parameters.delay)
-
-        /*
-         * Valida si se definio la propiedad duration
-         */
-        _duration = validateAnimationPropertys('duration', parameters.duration)
-
-        /*
-         * Valida si se definio la propiedad itareationCount
-         */
-        if (typeof parameters.iterationCount === 'number' || typeof parameters.iterationCount === 'string') {
-          _iterationCount = parameters.iterationCount
-        } else { (function () { throw new TypeError(`{iterationCount: '${parameters.iterationCount}'} contiene un valor no valido.`) }()) }
-        // _iterationCount = validateAnimationPropertys('iterationCount', parameters.iterationCount)
-
-        // Envia un error si no recibe un objeto
-      } else { throw new Error('No es un objeto') }
+      // Si parameters no es un objeto, comprueba que sea indefinido, de lo contrario arroja un error
+      } else {
+        if (parameters !== undefined) {
+          throw new Error(parameters + ' no es un objeto valido')
+        }
+      }
     }
 
     // Se ejecuta la funcion validateParametersObject
@@ -184,22 +107,41 @@
      *----------------------------------------------------------------
      */
     let initialSetup = () => {
+      // Obtiene todos los elementos que contengan el atributo [data-sam]
+      // <div data-sam="animationName"></div>
+      _elementObject = document.querySelectorAll('[data-sam]')
+
+      // Recorre la lista de elementos
       Array.from(_elementObject).forEach((_selectedItem) => {
-        // Obtiene las cordenadas del objeto
+        // Obtiene la clase definida en el atributo [data-sam]
+        _animationClassName = _selectedItem.dataset.sam
+        // Obtiene el valor del atributo [data-sam-offset] y comprueba que tenga un valor valido
+        _selectedItem.dataset.samOffset ? _offset = parseFloat(_selectedItem.dataset.samOffset) : _offset = parseFloat('10%')
+        isNaN(_offset) || (_offset - Math.floor(_offset)) !== 0
+          ? (function () { throw new TypeError(`{offset: '${_offset}'} contiene un valor no valido.`) }())
+          : _offset /= 100.0
+
+        // Obtiene el valor del atributo [data-sam-hidde] y comprueba que tenga un valor valido
+        _selectedItem.dataset.samHidde === 'true' || _selectedItem.dataset.samHidde === 'false'
+          ? _hidde = JSON.parse(_selectedItem.dataset.samHidde)
+          : _selectedItem.dataset.samHidde === undefined
+            ? _hidde = false
+            : (function () { throw new TypeError(`{triggerOnce: '${_selectedItem.dataset.samHidde}'} contiene un valor no valido.`) }())
+        // Obtiene las cordenadas del elemento
         _elementPosition = _selectedItem.getBoundingClientRect()
-        // Verifica si están definidas las propiedades de Duration, Delay e IterationCount para agregarlos en CSS
-        if (_duration) _selectedItem.style.animationDuration = (_duration / 1000) + 's'
-        if (_delay) _selectedItem.style.animationDelay = (_delay / 1000) + 's'
-        if (_iterationCount) _selectedItem.style.animationIterationCount = _iterationCount
         // Verifica si los elementos están dentro del espacio visible de la pantalla dependiendo el scroll
         if ((_scroll === 'vertical' && _elementPosition.top <= (window.innerHeight || document.documentElement.clientHeight)) ||
             (_scroll === 'horizontal' && _elementPosition.left <= (window.innerWidth || document.documentElement.clientWidth))) {
-          // Si esta en el ViewPort le agrega la calas de animacion
+          // Si esta en el ViewPort le agrega la clase definida en el atributo [data-sam]
           _selectedItem.classList.add(_animationClassName)
         } else {
-          // Si no esta en el ViewPort oculta el elemento
-          _selectedItem.style.visibility = 'hidden'
+          // Si no esta en el ViewPort comprueba si el usuario activo la opcion de ocultar
+          if (_hidde) _selectedItem.style.visibility = 'hidden'
         }
+        _selectedItem.addEventListener('animationend', () => {
+          console.log('termino')
+        }, false)
+      //
       })
     }
 
@@ -212,8 +154,19 @@
       _scroll === 'vertical' ? _globalContainer = window : _globalContainer = document.querySelector('.scroll-horizontal-container')
       _globalContainer.addEventListener('scroll', () => {
         Array.from(_elementObject).forEach((_selectedItem) => {
+          // Obtiene la clase definida en el atributo [data-sam]
+          _animationClassName = _selectedItem.dataset.sam
           // Obtiene las coordenadas del elemento
           _elementPosition = _selectedItem.getBoundingClientRect()
+          console.log(_animationClassName + ':' + _elementPosition.right)
+          // Obtiene el valor del atributo [data-sam-once] y comprueba que tenga un valor valido
+          _selectedItem.dataset.samOnce === 'true' || _selectedItem.dataset.samOnce === 'false'
+            ? _triggerOnce = JSON.parse(_selectedItem.dataset.samOnce)
+            : _selectedItem.dataset.samOnce === undefined
+              ? _triggerOnce = true
+              : (function () { throw new TypeError(`{triggerOnce: '${_selectedItem.dataset.samOnce}'} contiene un valor no valido.`) }())
+          // Obtiene el valor del atributo [data-sam-hidde]
+          _selectedItem.dataset.samHidde ? _hidde = _selectedItem.dataset.samHidde : _hidde = false
           // Calcula la posición del elemento en relacion al offset
           _scroll === 'vertical'
             ? _positionElementDisplayed = _elementPosition.top + (_selectedItem.offsetHeight * _offset)
@@ -222,13 +175,13 @@
           if ((_scroll === 'vertical' && _positionElementDisplayed <= (window.innerHeight || document.documentElement.clientHeight)) ||
               (_scroll === 'horizontal' && _positionElementDisplayed <= (window.innerWidth || document.documentElement.clientWidth))) {
             // console.log('In the viewport!')
-            _selectedItem.style.visibility = 'visible'
+            if (_hidde) _selectedItem.style.visibility = 'visible'
             _selectedItem.classList.add(_animationClassName)
           } else {
             // console.log('Not in the viewport...')
             if ((!_triggerOnce && _elementPosition.top >= window.innerHeight && _scroll === 'vertical') ||
                 (!_triggerOnce && _elementPosition.left >= window.innerWidth && _scroll === 'horizontal')) {
-              _selectedItem.style.visibility = 'hidden'
+              if (_hidde) _selectedItem.style.visibility = 'hidden'
               _selectedItem.classList.remove(_animationClassName)
             }
           }
@@ -248,12 +201,10 @@
           (_mobile && window.innerWidth <= 576) ||
           (_tablet && window.innerWidth <= 768 && window.innerWidth >= 576) ||
           (_desktop && window.innerWidth >= 768)
-        ) {
-          console.log('SocrollAnimate: Animaciones desactivadas para este dispositivo')
-        } else {
-          initialSetup(_elementObject)
-          initAnimations()
-        }
+        ) { console.log('SocrollAnimate: Animaciones desactivadas para este dispositivo') }
+      } else {
+        initialSetup()
+        initAnimations()
       }
     }
 
