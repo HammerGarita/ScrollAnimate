@@ -11,13 +11,13 @@ html(lang="es")
     body
         .scroll-horizontal-container
             .screen.pink.darken-3
-                h2.animated Screen 1
+                h2.animated(data-sam="fadeInLeft" data-sam-offset="50") Screen 1
             .screen.amber.darken-2
-                h2.animated Screen 2
+                h2.animated(data-sam="fadeInUpBig" data-sam-once="false" data-sam-offset="100" data-sam-hidde="true") Screen 2
             .screen.light-blue.darken-3
-                h2.animated Screen 3
+                h2.animated(data-sam="bounceInRight") Screen 3
             .screen.red.darken-3
                 h2.animated Screen 4
-            
+
         script(src="js/scrollAnimate.js")
         script(src="js/scripts.js")
