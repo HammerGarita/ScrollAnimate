@@ -10,50 +10,50 @@ const browserSync = require('browser-sync').create()
 // Static Server + watching scss/html/js files
 gulp.task('serve', ['sass', 'pug'], () =>
   browserSync.init({
-    server: './example/'
+    server: './demo/'
   }),
 
-gulp.watch('./src/example/scss/**/*.scss', ['sass']),
-gulp.watch('./src/example/pug/*.pug', ['pug']).on('change', browserSync.reload),
-gulp.watch('./src/ScrollAnimate/scrollAnimate.js', ['babel']).on('change', browserSync.reload)
+gulp.watch('./src/demo/scss/**/*.scss', ['sass']),
+gulp.watch('./src/demo/pug/*.pug', ['pug']).on('change', browserSync.reload),
+gulp.watch('./src/ScrollFunny/ScrollFunny.js', ['babel']).on('change', browserSync.reload)
 )
 
 // Compile ES6 into Javascript
 gulp.task('babel', () => {
-  return gulp.src('./src/ScrollAnimate/scrollAnimate.js')
+  return gulp.src('./src/ScrollFunny/ScrollFunny.js')
     .pipe(babel({
       presets: ['@babel/env'],
       parserOpts: { sourceType: 'script' }
     }))
-    .pipe(gulp.dest('./dist/ScrollAnimate/uncompressed'))
-    .pipe(gulp.dest('./example/js/'))
+    .pipe(gulp.dest('./dist/ScrollFunny/uncompressed'))
+    .pipe(gulp.dest('./demo/js/'))
     .pipe(uglify())
     .pipe(rename({ suffix: '.min' }))
-    .pipe(gulp.dest('./dist/ScrollAnimate/minified'))
+    .pipe(gulp.dest('./dist/ScrollFunny/minified'))
 })
 
 // Compile sass into CSS & auto-inject into browsers
 gulp.task('sass', () => {
-  return gulp.src('./src/example/scss/*.scss')
+  return gulp.src('./src/demo/scss/*.scss')
     .pipe(sass({
       outputStyle: 'expanded'
     }))
     .pipe(autoprefixer({
       browsers: ['last 2 versions', '> 5%', 'Firefox ESR']
     }))
-    .pipe(gulp.dest('./example/'))
+    .pipe(gulp.dest('./demo/'))
     .pipe(browserSync.stream())
 })
 
 // Compile pug into HTML
 gulp.task('pug', () => {
-  return gulp.src('./src/example/pug/*.pug')
+  return gulp.src('./src/demo/pug/*.pug')
     .pipe(pug({
       pretty: true
     }))
-    .pipe(gulp.dest('./example/'))
+    .pipe(gulp.dest('./demo/'))
 })
 
 gulp.task('default', ['serve'])
 
-//npm install --save-dev gulp gulp-babel @babel/core @babel/preset-env gulp-autoprefixer gulp-pug gulp-rename gulp-sass gulp-uglify browser-sync 
+// npm install --save-dev gulp gulp-babel @babel/core @babel/preset-env gulp-autoprefixer gulp-pug gulp-rename gulp-sass gulp-uglify browser-sync
