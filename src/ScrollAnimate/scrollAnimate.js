@@ -1,38 +1,38 @@
 /*
- * ScrollAnimate v1.0.0 (2018-12-01)
+ * ScrollFunny v1.0.0 (2018-12-01)
  * The javascript library for animation scroll interactions.
  * (c) 2018 Hammer Garita (@hammergarita)
- * Project Website: http://scrollanimate.com
+ * Project Website: http://scrollfunny.com
  * @version 1.0.0
  * @license Dual licensed under MIT license and GPL.
  * @author Hammer Garita - contacto@hgarita.com
  *
- * @file ScrollAnimate main library.
+ * @file ScrollFunny main library.
  */
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(factory)
   } else if (typeof exports === 'object') {
-    module.exports = factory
+    module.exports = factory()
   } else {
-    root.ScrollAnimate = factory()
+    root.ScrollFunny = factory()
   }
 })(this, () => {
   'use strict'
 
-  let ScrollAnimate = {}
+  let ScrollFunny = {}
   /*
     * @usage
     * - Inicializar Scroll Animate
-    * scrollAnimate.init()
+    * ScrollFunny.init()
     * - Inicializar Scroll Animate con @parametros
-    * scrollAnimate.init({
+    * ScrollFunny.init({
     *   scroll: 'vertical',
     *   disabled: ['mobile']
     * })
     */
-  ScrollAnimate.init = (parametersObject) => {
+  ScrollFunny.init = (parametersObject) => {
     /*
       * ----------------------------------------------------------------
       * Private vars
@@ -103,45 +103,81 @@
 
     /*
      * ----------------------------------------------------------------
+     * Función para optimizar el manejo de eventos
+     *----------------------------------------------------------------
+     */
+    var addEvent = function (element, event, func) {
+      element.addEventListener(event, function (e) {
+        var that = this
+        var helper = function (el) {
+          if (el !== that) {
+            if (el.dataset.funny) {
+              el.dataset.animation = true
+              return el
+            }
+            return helper(el.parentNode)
+          }
+          return false
+        }
+        var el = helper(e.target)
+        if (el !== false) {
+          func.call(this, e)
+        }
+      })
+    }
+
+    /*
+     * ----------------------------------------------------------------
      * Configuración inicial
      *----------------------------------------------------------------
      */
     let initialSetup = () => {
-      // Obtiene todos los elementos que contengan el atributo [data-sam]
-      // <div data-sam="animationName"></div>
-      _elementObject = document.querySelectorAll('[data-sam]')
+      // Obtiene todos los elementos que contengan el atributo [data-funny]
+      // <div data-funny="animationName"></div>
+      _elementObject = document.querySelectorAll('[data-funny]')
 
       // Recorre la lista de elementos
       Array.from(_elementObject).forEach((_selectedItem) => {
-        // Obtiene la clase definida en el atributo [data-sam]
-        _animationClassName = _selectedItem.dataset.sam
-        // Obtiene el valor del atributo [data-sam-offset] y comprueba que tenga un valor valido
-        _selectedItem.dataset.samOffset ? _offset = parseFloat(_selectedItem.dataset.samOffset) : _offset = parseFloat('10%')
+        // Obtiene la clase definida en el atributo [data-funny]
+        _animationClassName = _selectedItem.dataset.funny
+
+        _selectedItem.dataset.animation = false
+        // Obtiene el valor del atributo [data-funny-offset] y comprueba que tenga un valor valido
+        _selectedItem.dataset.funnyOffset ? _offset = parseFloat(_selectedItem.dataset.funnyOffset) : _offset = parseFloat('10%')
         isNaN(_offset) || (_offset - Math.floor(_offset)) !== 0
           ? (function () { throw new TypeError(`{offset: '${_offset}'} contiene un valor no valido.`) }())
           : _offset /= 100.0
 
-        // Obtiene el valor del atributo [data-sam-hidde] y comprueba que tenga un valor valido
-        _selectedItem.dataset.samHidde === 'true' || _selectedItem.dataset.samHidde === 'false'
-          ? _hidde = JSON.parse(_selectedItem.dataset.samHidde)
-          : _selectedItem.dataset.samHidde === undefined
+        // Obtiene el valor del atributo [data-funny-hidde] y comprueba que tenga un valor valido
+        _selectedItem.dataset.funnyHidde === 'true' || _selectedItem.dataset.funnyHidde === 'false'
+          ? _hidde = JSON.parse(_selectedItem.dataset.funnyHidde)
+          : _selectedItem.dataset.funnyHidde === undefined
             ? _hidde = false
-            : (function () { throw new TypeError(`{triggerOnce: '${_selectedItem.dataset.samHidde}'} contiene un valor no valido.`) }())
+            : (function () { throw new TypeError(`{triggerOnce: '${_selectedItem.dataset.funnyHidde}'} contiene un valor no valido.`) }())
         // Obtiene las cordenadas del elemento
         _elementPosition = _selectedItem.getBoundingClientRect()
         // Verifica si los elementos están dentro del espacio visible de la pantalla dependiendo el scroll
         if ((_scroll === 'vertical' && _elementPosition.top <= (window.innerHeight || document.documentElement.clientHeight)) ||
             (_scroll === 'horizontal' && _elementPosition.left <= (window.innerWidth || document.documentElement.clientWidth))) {
-          // Si esta en el ViewPort le agrega la clase definida en el atributo [data-sam]
+          // Si esta en el ViewPort le agrega la clase definida en el atributo [data-funny]
           _selectedItem.classList.add(_animationClassName)
         } else {
           // Si no esta en el ViewPort comprueba si el usuario activo la opcion de ocultar
           if (_hidde) _selectedItem.style.visibility = 'hidden'
         }
-        _selectedItem.addEventListener('animationend', () => {
-          console.log('termino')
-        }, false)
       //
+      })
+
+      addEvent(window, 'animationend', function (e) {
+        // Código que se ejecuta al hacer click.
+        console.log(e)
+      })
+
+      addEvent(window, 'transitionend', function (e) {
+        // Código que se ejecuta al hacer click.
+        if (e.propertyName !== 'visibility') {
+          console.log(e)
+        }
       })
     }
 
@@ -154,24 +190,24 @@
       _scroll === 'vertical' ? _globalContainer = window : _globalContainer = document.querySelector('.scroll-horizontal-container')
       _globalContainer.addEventListener('scroll', () => {
         Array.from(_elementObject).forEach((_selectedItem) => {
-          // Obtiene la clase definida en el atributo [data-sam]
-          _animationClassName = _selectedItem.dataset.sam
+          // Obtiene la clase definida en el atributo [data-funny]
+          _animationClassName = _selectedItem.dataset.funny
           // Obtiene las coordenadas del elemento
           _elementPosition = _selectedItem.getBoundingClientRect()
-          console.log(_animationClassName + ':' + _elementPosition.right)
-          // Obtiene el valor del atributo [data-sam-once] y comprueba que tenga un valor valido
-          _selectedItem.dataset.samOnce === 'true' || _selectedItem.dataset.samOnce === 'false'
-            ? _triggerOnce = JSON.parse(_selectedItem.dataset.samOnce)
-            : _selectedItem.dataset.samOnce === undefined
+          // Obtiene el valor del atributo [data-funny-once] y comprueba que tenga un valor valido
+          _selectedItem.dataset.funnyOnce === 'true' || _selectedItem.dataset.funnyOnce === 'false'
+            ? _triggerOnce = JSON.parse(_selectedItem.dataset.funnyOnce)
+            : _selectedItem.dataset.funnyOnce === undefined
               ? _triggerOnce = true
-              : (function () { throw new TypeError(`{triggerOnce: '${_selectedItem.dataset.samOnce}'} contiene un valor no valido.`) }())
-          // Obtiene el valor del atributo [data-sam-hidde]
-          _selectedItem.dataset.samHidde ? _hidde = _selectedItem.dataset.samHidde : _hidde = false
+              : (function () { throw new TypeError(`{triggerOnce: '${_selectedItem.dataset.funnyOnce}'} contiene un valor no valido.`) }())
+          // Obtiene el valor del atributo [data-funny-hidde]
+          _selectedItem.dataset.funnyHidde ? _hidde = _selectedItem.dataset.funnyHidde : _hidde = false
           // Calcula la posición del elemento en relacion al offset
           _scroll === 'vertical'
             ? _positionElementDisplayed = _elementPosition.top + (_selectedItem.offsetHeight * _offset)
             : _positionElementDisplayed = _elementPosition.left + (_selectedItem.offsetWidth * _offset)
           // Verifica que se encuentre dentro del espacio visible de la ventana
+          console.log(_selectedItem.dataset.animation)
           if ((_scroll === 'vertical' && _positionElementDisplayed <= (window.innerHeight || document.documentElement.clientHeight)) ||
               (_scroll === 'horizontal' && _positionElementDisplayed <= (window.innerWidth || document.documentElement.clientWidth))) {
             // console.log('In the viewport!')
@@ -211,5 +247,5 @@
     animationResponsive()
   }
 
-  return ScrollAnimate
+  return ScrollFunny
 })
